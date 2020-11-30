@@ -5,6 +5,19 @@ spring:
   profiles:
     active: dev
 
+  cloud.stream:
+    bindings:
+      output-users:
+        destination: users
+      output-dashboard:
+        destination: dashboard
+      output-newusers:
+        destination: newusers
+      input-newusers:
+        destination: newusers
+    kafka.binder:
+      brokers: 127.0.0.1
+      defaultBrokerPort: 9092
 ---
 spring:
   profiles: dev
