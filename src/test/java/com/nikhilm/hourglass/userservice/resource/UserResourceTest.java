@@ -7,16 +7,19 @@ import com.nikhilm.hourglass.userservice.models.UserDTO;
 import com.nikhilm.hourglass.userservice.models.UserSession;
 import com.nikhilm.hourglass.userservice.repositories.UserRepository;
 import com.nikhilm.hourglass.userservice.services.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -29,6 +32,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @WebFluxTest
+@TestPropertySource("classpath:.env")
+@Slf4j
 class UserResourceTest {
 
     @MockBean
@@ -43,11 +48,17 @@ class UserResourceTest {
     @MockBean
     UserMapper userMapper;
 
-  
+    @Value("${apikey}")
+    private String apiKey;
+
+
+
 
 
     @Test
     public void testGetUserStatus() {
+
+        log.info("apiKey " + apiKey);
 
         UserSession userSession = new UserSession();
         userSession.setLocalId("abc");
