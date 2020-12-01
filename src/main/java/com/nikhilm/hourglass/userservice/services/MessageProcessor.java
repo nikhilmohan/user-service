@@ -35,7 +35,7 @@ public class MessageProcessor {
                     try {
                         ObjectMapper objectMapper = new ObjectMapper();
                         objectMapper.registerModule(new JavaTimeModule());
-                        session = objectMapper.convertValue(event.getData().get(), UserSession.class);
+                        session = objectMapper.convertValue(event.getData().orElse(new UserSession()), UserSession.class);
                         userService.syncUserRecord(session).block();
                     } catch(Exception e)   {
                         log.error("Exception " + e.getMessage());

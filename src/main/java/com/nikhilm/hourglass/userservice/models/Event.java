@@ -1,6 +1,5 @@
 package com.nikhilm.hourglass.userservice.models;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -18,7 +17,7 @@ public class Event<K, T> {
     public Event() {
         this.eventType = null;
         this.key = null;
-        this.data = null;
+        this.data = Optional.empty();
         this.eventCreatedAt = null;
     }
 
