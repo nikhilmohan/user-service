@@ -71,7 +71,6 @@ public class UserResource {
 
         String uri = idpUrl + ":signUp?key=" + apiKey;
 
-        log.info("uri " + uri);
 
         return userService.activateUserSession(uri, credentials)
                 .flatMap(userSession -> {
