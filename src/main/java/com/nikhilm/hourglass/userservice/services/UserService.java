@@ -46,13 +46,13 @@ public class UserService {
     public Mono<UserSession> initializeFavouritesSync(UserSession userSession) {
         log.info("invoked initializeFavourites " + userSession.getLocalId());
         return webClient
-                .post().uri("http://localhost:9900/favourites-service/favourites/user/" + userSession.getLocalId())
+                .post().uri("http://localhost:9900/favourites-service/favourites")
                 .header("Authorization", "Bearer " + userSession.getIdToken())
                 .exchange()
                 .flatMap(clientResponse -> {
                     if (!clientResponse.statusCode().is2xxSuccessful()) {
                         log.info("Exception thrown " + clientResponse.statusCode());
-                        return Mono.error(new UserException(503, "favourites exception!"));
+                        return fallbackUserSession(userSession);
                     }
                     log.info("received response initializeFavourites " + userSession.getLocalId());
 
@@ -105,7 +105,7 @@ public class UserService {
                 .flatMap(response -> {
                     if (response.statusCode().is5xxServerError()) {
 
-                        throw new UserException(503, "Dashboard initialization error!");
+                        return fallbackUserSessionForDashboard(session);
                     }
                     log.info("received response initializeDashboard " + session.getLocalId());
                     return Mono.just(session);
@@ -123,28 +123,27 @@ public class UserService {
                 .withPayload(new Event<String, Object>(Event.Type.USER_PENDING, userSession.getLocalId(),
                         Optional.of(session))).build());
     }
-    private UserSession fallbackUserSession(UserSession userSession)    {
+    private Mono<UserSession> fallbackUserSession(UserSession userSession)    {
         log.info("Inside fallback..");
         messageSources.outputUsers().send((MessageBuilder
                 .withPayload(new Event(Event.Type.USER_ADDED, userSession.getLocalId(), Optional.empty())).build()));
         log.info("favourites notify event published! " + userSession.getLocalId());
-        return userSession;
+        return Mono.just(userSession);
     }
     public Mono<UserSession> initializeFavourites(UserSession userSession) {
-        return initializeFavouritesSync(userSession)
-            .onErrorReturn(fallbackUserSession(userSession));
+        return initializeFavouritesSync(userSession);
     }
-    private UserSession fallbackUserSessionForDashboard(UserSession userSession)    {
+    private Mono<UserSession> fallbackUserSessionForDashboard(UserSession userSession)    {
         log.info("Inside dashboardfallback..");
         messageSources.outputDashboard().send((MessageBuilder
                 .withPayload(new Event(Event.Type.USER_ADDED, userSession.getLocalId(), Optional.empty())).build()));
         log.info("dashboard notify event published! " + userSession.getLocalId());
-        return userSession;
+        return Mono.just(userSession);
     }
 
     public Mono<UserSession> initializeDashboard(UserSession userSession) {
-        return initializeDashboardSync(userSession)
-            .onErrorReturn(fallbackUserSessionForDashboard(userSession));
+        return initializeDashboardSync(userSession);
+
     }
     public Mono<UserSession> syncUserRecord(UserSession session) {
         return userRepository.save(session)

@@ -141,6 +141,7 @@ class UserServiceTest {
                 .verifyComplete();
 
 
+
     }
     @Test
     public void testInitializeDashboardFallback()  {
@@ -201,6 +202,14 @@ class UserServiceTest {
     @Test
     public void testInitializeFavouritesFailed()    {
 
+        UserSession userSession = new UserSession();
+        userSession.setLocalId("abc");
+        userSession.setRefreshToken("rtoken");
+        userSession.setExpiresIn("3600");
+        userSession.setEmail("test@abc.com");
+        userSession.setCreatedTime(LocalDateTime.now());
+        MessageChannel channel = mock(MessageChannel.class);
+
         WebClient.RequestBodyUriSpec requestBodyUriSpec
                 = mock(WebClient.RequestBodyUriSpec.class);
         WebClient.RequestBodySpec requestBodySpec = mock(WebClient.RequestBodySpec.class);
@@ -211,30 +220,47 @@ class UserServiceTest {
                 .thenReturn(requestBodySpec);
         when(requestBodySpec.header(anyString(), anyString())).thenReturn(requestBodySpec);
         when(requestBodySpec.exchange()).thenReturn(Mono.just(clientResponse));
+        Mockito.when(messageSources.outputUsers()).thenReturn(channel);
+        Mockito.when(channel.send(any(Message.class))).thenReturn(true);
 
-        StepVerifier.create(userService.initializeFavouritesSync(new UserSession()))
+        StepVerifier.create(userService.initializeFavouritesSync(userSession))
                 .expectSubscription()
-                .expectErrorMessage("favourites exception!")
-                .verify();
+                .expectNext(userSession)
+                .verifyComplete();
+
+        verify(messageSources).outputUsers();
     }
     @Test
     public void testInitializeDashboardFailed()    {
 
+        UserSession userSession = new UserSession();
+        userSession.setLocalId("abc");
+        userSession.setRefreshToken("rtoken");
+        userSession.setExpiresIn("3600");
+        userSession.setEmail("test@abc.com");
+        userSession.setCreatedTime(LocalDateTime.now());
+
         WebClient.RequestBodyUriSpec requestBodyUriSpec
                 = mock(WebClient.RequestBodyUriSpec.class);
         WebClient.RequestBodySpec requestBodySpec = mock(WebClient.RequestBodySpec.class);
         ClientResponse clientResponse = ClientResponse.create(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        MessageChannel channel = mock(MessageChannel.class);
 
         when(webClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(anyString()))
                 .thenReturn(requestBodySpec);
         when(requestBodySpec.header(anyString(), anyString())).thenReturn(requestBodySpec);
         when(requestBodySpec.exchange()).thenReturn(Mono.just(clientResponse));
+        Mockito.when(messageSources.outputDashboard()).thenReturn(channel);
+        Mockito.when(channel.send(any(Message.class))).thenReturn(true);
 
-        StepVerifier.create(userService.initializeDashboardSync(new UserSession()))
+        StepVerifier.create(userService.initializeDashboardSync(userSession))
                 .expectSubscription()
-                .expectErrorMessage("Dashboard initialization error!")
-                .verify();
+                .expectNext(userSession)
+                .verifyComplete();
+
+        verify(messageSources).outputDashboard();
+
     }
 
     @Test
