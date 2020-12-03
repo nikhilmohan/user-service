@@ -38,6 +38,6 @@ spring:
       database: hourglass
   cloud.stream:
     kafka.binder:
-      brokers: localhost
-      defaultBrokerPort: 9092
+      brokers: kafka
+      defaultBrokerPort: 9093
 
