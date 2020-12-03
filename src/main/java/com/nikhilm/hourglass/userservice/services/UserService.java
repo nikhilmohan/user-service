@@ -46,7 +46,7 @@ public class UserService {
     public Mono<UserSession> initializeFavouritesSync(UserSession userSession) {
         log.info("invoked initializeFavourites " + userSession.getLocalId());
         return webClient
-                .post().uri("http://localhost:9900/favourites-service/favourites")
+                .post().uri("http://gateway-service:9900/favourites-service/favourites")
                 .header("Authorization", "Bearer " + userSession.getIdToken())
                 .exchange()
                 .flatMap(clientResponse -> {
@@ -99,7 +99,7 @@ public class UserService {
         log.info("invoked initializeDashboard " + session.getLocalId());
         return webClient
                 .post()
-                .uri("http://localhost:9900/dashboard-service/metrics/" + session.getLocalId())
+                .uri("http://gateway-service:9900/dashboard-service/metrics/" + session.getLocalId())
                 .header("Authorization", "Bearer " + session.getIdToken())
                 .exchange()
                 .flatMap(response -> {
