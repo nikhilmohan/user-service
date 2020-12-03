@@ -15,9 +15,7 @@ spring:
         destination: newusers
       input-newusers:
         destination: newusers
-    kafka.binder:
-      brokers: 127.0.0.1
-      defaultBrokerPort: 9092
+
 ---
 spring:
   profiles: dev
@@ -26,12 +24,20 @@ spring:
       host: localhost
       port: 27017
       database: hourglass
+  cloud.stream:
+    kafka.binder:
+      brokers: 127.0.0.1
+      defaultBrokerPort: 9092
 ---
 spring:
   profile: prod
   data:
     mongodb:
-      host: localhost
-      port: 27018
+      host: mongodb
+      port: 27017
       database: hourglass
+  cloud.stream:
+    kafka.binder:
+      brokers: kafka
+      defaultBrokerPort: 9092
 

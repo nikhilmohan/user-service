@@ -36,7 +36,7 @@ import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 
 @RestController
 @Configuration
-@PropertySource("classpath:.env")
+@PropertySource(value = "classpath:.env", ignoreResourceNotFound = true)
 @Slf4j
 public class UserResource {
 
