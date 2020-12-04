@@ -1,6 +1,6 @@
 FROM openjdk:12.0.2
 
-EXPOSE 9020
+EXPOSE 9070
 
 ADD ./target/*.jar app.jar
 
