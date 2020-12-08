@@ -18,6 +18,11 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: prod
+            - name: HG_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: apikey-secret
+                  key: idp-apikey
 
 ---
 
