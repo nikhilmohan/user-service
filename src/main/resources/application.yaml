@@ -15,6 +15,9 @@ spring:
         destination: newusers
       input-newusers:
         destination: newusers
+    defaultBinder: rabbit
+    default.contentType: application/json
+
 
 ---
 spring:
@@ -24,20 +27,40 @@ spring:
       host: localhost
       port: 27017
       database: hourglass
-  cloud.stream:
-    kafka.binder:
-      brokers: 127.0.0.1
-      defaultBrokerPort: 9092
+spring.rabbitmq:
+  host: localhost
+  port: 5672
+  username: guest
+  password: guest
+service.url:
+  gateway: localhost
+
 ---
 spring:
   profile: prod
   data:
     mongodb:
-      host: mongodb
+      host: hourglassdb-service
       port: 27017
       database: hourglass
   cloud.stream:
-    kafka.binder:
-      brokers: kafka
-      defaultBrokerPort: 9093
+    bindings:
+      output-users:
+        destination: users
+      output-dashboard:
+        destination: dashboard
+      output-newusers:
+        destination: newusers
+      input-newusers:
+        destination: newusers
+
+
+spring.rabbitmq:
+  host: rabbitmq
+  port: 5672
+  username: guest
+  password: guest
+service.url:
+  gateway: gateway-service
+
 

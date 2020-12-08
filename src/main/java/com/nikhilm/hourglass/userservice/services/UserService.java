@@ -8,6 +8,7 @@ import com.nikhilm.hourglass.userservice.repositories.UserRepository;
 import com.nikhilm.hourglass.userservice.resource.UserResource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
@@ -41,12 +42,14 @@ public class UserService {
 
     ReactiveCircuitBreaker rcb;
 
+    @Value("${service.url.gateway}")
+    private String gatewayServiceUrl;
 
 
     public Mono<UserSession> initializeFavouritesSync(UserSession userSession) {
         log.info("invoked initializeFavourites " + userSession.getLocalId());
         return webClient
-                .post().uri("http://gateway-service:9900/favourites-service/favourites")
+                .post().uri("http://" + gatewayServiceUrl + ":9900/favourites-service/favourites")
                 .header("Authorization", "Bearer " + userSession.getIdToken())
                 .exchange()
                 .flatMap(clientResponse -> {
@@ -99,7 +102,8 @@ public class UserService {
         log.info("invoked initializeDashboard " + session.getLocalId());
         return webClient
                 .post()
-                .uri("http://gateway-service:9900/dashboard-service/metrics/" + session.getLocalId())
+                .uri("http://" + gatewayServiceUrl + ":9900/dashboard-service/metrics/"
+                        + session.getLocalId())
                 .header("Authorization", "Bearer " + session.getIdToken())
                 .exchange()
                 .flatMap(response -> {
