@@ -17,6 +17,7 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessageChannel;
@@ -67,10 +68,20 @@ public class UserResource {
         this.rcb = this.factory.create("favourites");
     }
 
+    @GetMapping("/test")
+    public String testEnv() {
+        System.getenv().forEach((k, v) -> {
+            System.out.println(k + ":" + v);
+        });
+        return System.getenv("HG_API_KEY");
+    }
+
     @PostMapping("/signup")
     public Mono<ResponseEntity<UserDTO>> signUpUser(@RequestBody UserCred credentials)    {
 
+
         String uri = idpUrl + ":signUp?key=" + apiKey;
+        log.info("uri " + uri);
 
 
         return userService.activateUserSession(uri, credentials)

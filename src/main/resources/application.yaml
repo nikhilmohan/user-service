@@ -1,5 +1,6 @@
 server.port: 9070
 idp.url: https://identitytoolkit.googleapis.com/v1/accounts
+apiKey: "${HG_API_KEY: dummy}"
 
 spring:
   profiles:
